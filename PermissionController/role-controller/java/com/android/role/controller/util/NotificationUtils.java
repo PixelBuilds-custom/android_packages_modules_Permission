@@ -23,6 +23,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.os.Process;
+import android.os.UserHandle;
 import android.service.notification.NotificationListenerService;
 import android.util.Log;
 
@@ -31,6 +33,8 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import com.android.permissioncontroller.role.utils.UserUtils;
 
 /**
  * Utility methods about Notification permissions.
@@ -49,7 +53,10 @@ public final class NotificationUtils {
      */
     public static void grantNotificationAccessForPackage(@NonNull Context context,
             @NonNull String packageName) {
-        setNotificationGrantStateForPackage(context, packageName, true);
+                UserHandle user = Process.myUserHandle();
+                if (!UserUtils.isWorkProfile(user, context)) {
+                    setNotificationGrantStateForPackage(context, packageName, true);
+                }
     }
 
     /**
@@ -60,7 +67,10 @@ public final class NotificationUtils {
      */
     public static void revokeNotificationAccessForPackage(@NonNull Context context,
             @NonNull String packageName) {
-        setNotificationGrantStateForPackage(context, packageName, false);
+                UserHandle user = Process.myUserHandle();
+                if (!UserUtils.isWorkProfile(user, context)) {
+                    setNotificationGrantStateForPackage(context, packageName, false);
+                }
     }
 
 
@@ -94,4 +104,18 @@ public final class NotificationUtils {
         return pkgListeners;
     }
 
+<<<<<<< HEAD:PermissionController/role-controller/java/com/android/role/controller/util/NotificationUtils.java
+=======
+    @Override
+    public void revoke(@NonNull Role role, @NonNull String packageName, @NonNull Context context) {
+        UserHandle user = Process.myUserHandle();
+        if (!UserUtils.isWorkProfile(user, context)) {
+            NotificationManager notificationManager =
+                    context.getSystemService(NotificationManager.class);
+            List<ComponentName> enabledNotificationListeners =
+                    notificationManager.getEnabledNotificationListeners();
+            setNotificationGrantState(context, enabledNotificationListeners, false);
+        }
+    }
+>>>>>>> 8141e8f4d (Do not grant notification access for work apps.):PermissionController/src/com/android/permissioncontroller/role/model/CompanionDeviceWatchRoleBehavior.java
 }
